@@ -31,6 +31,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     display_name = models.CharField(max_length=120, blank=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    is_creator = models.BooleanField(default=False)   # may upload shows to the studio
     created_at = models.DateTimeField(auto_now_add=True)
 
     objects = UserManager()

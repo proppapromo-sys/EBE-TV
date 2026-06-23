@@ -3,8 +3,9 @@ import uuid
 from django.conf import settings
 from django.db import models
 
-DRAFT, PUBLISHED = "draft", "published"
-STATUS_CHOICES = [(DRAFT, "draft"), (PUBLISHED, "published")]
+# draft = creator editing · pending = submitted, awaiting moderation · published = live
+DRAFT, PENDING, PUBLISHED = "draft", "pending", "published"
+STATUS_CHOICES = [(DRAFT, "draft"), (PENDING, "pending"), (PUBLISHED, "published")]
 
 
 class Video(models.Model):

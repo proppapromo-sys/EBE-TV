@@ -62,3 +62,22 @@ export const Creator = {
   onboard: () => api("/creator/onboard", { method: "POST", auth: true }),
   earnings: () => api("/creator/earnings", { auth: true }),
 };
+
+export const Studio = {
+  enable: () => api("/studio/enable", { method: "POST", auth: true }),
+  shows: () => api("/studio/shows", { auth: true }),
+  saveShow: (show) => api("/studio/shows", { method: "POST", auth: true, body: show }),
+  addSeason: (showId, number = 1) =>
+    api("/studio/seasons", { method: "POST", auth: true, body: { show: showId, number } }),
+  uploadUrl: () => api("/studio/videos/upload-url", { method: "POST", auth: true, body: {} }),
+  addEpisode: (ep) => api("/studio/episodes", { method: "POST", auth: true, body: ep }),
+  submit: (showId) => api("/studio/submit", { method: "POST", auth: true, body: { show: showId } }),
+};
+
+// PUT a file straight to a Cloudflare direct-upload URL (off-API, no auth header).
+export async function uploadToCloudflare(uploadURL, file) {
+  const form = new FormData();
+  form.append("file", file);
+  const res = await fetch(uploadURL, { method: "POST", body: form });
+  return res.ok;
+}

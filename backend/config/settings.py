@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "apps.playback",
     "apps.cms",
     "apps.payouts",
+    "apps.studio",
 ]
 
 MIDDLEWARE = [

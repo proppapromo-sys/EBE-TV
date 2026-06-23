@@ -21,6 +21,15 @@ Three providers, one truth. Stripe (web, full margin), Apple IAP, Google Play Bi
 through `normalize.apply_subscription_state()` → the `subscriptions` table. Handlers are idempotent
 (`update_or_create` on `(source, external_id)`).
 
+## Creator studio (`apps/studio/`)
+Self-serve upload for the "creators stream their own shows" model. A user opts into creator mode
+(`is_creator`), then creates shows, requests Cloudflare upload URLs, adds episodes, and **submits
+for moderation** — `draft → pending → published` (an admin publishes via the CMS). Two invariants:
+every endpoint is **owner-scoped** (a creator can never read or edit another creator's content — a
+foreign id 404s, not 403s, so nothing leaks), and **creators cannot self-publish** (the public
+catalog only serves `published`, so a submission is invisible until approved). New uploads
+auto-set `Show.owner`, which is exactly the key the payout engine attributes revenue by.
+
 ## Creator payouts (`apps/payouts/`)
 For platforms where third parties stream **their own** shows. Three steps mirror three tables:
 1. **Ownership** — `catalog.Show.owner` links a show to the creator who earns from it

@@ -10,6 +10,7 @@ export default function RootLayout({ children }) {
           <a className="brand" href="/">▶ STREAM</a>
           <a href="/" className="muted">Browse</a>
           <a href="/subscribe" className="muted">Subscribe</a>
+          <a href="/studio" className="muted">Studio</a>
           <a href="/creator" className="muted">Creators</a>
           <span className="spacer" />
           <a href="/login" className="btn ghost">Sign in</a>

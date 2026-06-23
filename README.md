@@ -58,8 +58,12 @@ docker compose up --build                          # web :3000 · api :8000 · p
   **watch-time pro-rata** (minus a configurable platform fee) into a `CreatorEarning` ledger, paid
   via **Stripe Connect** transfers. `/api/creator/{onboard,account,earnings}` + the
   `compute_payouts` / `run_payouts` commands. Fail-closed until `STRIPE_SECRET_KEY` is set.
+- **Creator studio (self-serve upload):** any user can `enable` creator mode, then create shows,
+  request Cloudflare upload URLs, add episodes, and **submit for moderation** (draft → pending →
+  admin publishes). All endpoints are owner-scoped — creators only ever see/edit their own content.
+  `apps/studio` · `/api/studio/*`.
 - **Web client:** browse → show → player (Shaka Player: DASH/Widevine, HLS/FairPlay on Safari),
-  subscribe page, login, continue-watching progress.
+  subscribe page, login, continue-watching, **creator studio + payout dashboard**.
 
 ## Wire the real services (when ready)
 1. **Cloudflare Stream** — set `CF_*`. Enable "Require signed URLs" + DRM on videos. Upload via the
@@ -75,7 +79,7 @@ docker compose up --build                          # web :3000 · api :8000 · p
 
 ## Layout
 ```
-backend/   Django project — apps/{accounts,catalog,subscriptions,billing,playback,cms,payouts}
+backend/   Django project — apps/{accounts,catalog,subscriptions,billing,playback,cms,payouts,studio}
 web/       Next.js web client (browse, subscribe, DRM player)
 infra/     Dockerfiles
 clients/   native + TV client scaffolds (see each README) — build order in docs/BUILD_ORDER.md
