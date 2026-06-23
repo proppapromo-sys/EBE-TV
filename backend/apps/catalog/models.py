@@ -23,6 +23,10 @@ class Video(models.Model):
 
 class Show(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    # The creator who owns this show and earns from it. Null = platform-owned original
+    # (revenue stays with the platform, no payout). Set this to make a show pay a creator.
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True,
+                              related_name="owned_shows", on_delete=models.SET_NULL)
     title = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
     description = models.TextField(blank=True)

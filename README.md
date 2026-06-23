@@ -54,6 +54,10 @@ docker compose up --build                          # web :3000 · api :8000 · p
   structured with the exact endpoints to call (return `not_configured` until you add keys —
   fail-closed). All three normalize into one `subscriptions.status` and bust the cache on change.
 - **CMS:** Cloudflare direct-upload URL, show/episode CRUD, publish, transcode webhook → `ready`.
+- **Creator payouts:** shows have an `owner`; subscription revenue is split across creators by
+  **watch-time pro-rata** (minus a configurable platform fee) into a `CreatorEarning` ledger, paid
+  via **Stripe Connect** transfers. `/api/creator/{onboard,account,earnings}` + the
+  `compute_payouts` / `run_payouts` commands. Fail-closed until `STRIPE_SECRET_KEY` is set.
 - **Web client:** browse → show → player (Shaka Player: DASH/Widevine, HLS/FairPlay on Safari),
   subscribe page, login, continue-watching progress.
 
@@ -64,10 +68,14 @@ docker compose up --build                          # web :3000 · api :8000 · p
    `/api/webhooks/stripe`. Web signups now bill at full margin.
 3. **Apple / Google** — set the IAP envs; finish the `TODO` verification calls in
    `apps/billing/apple.py` and `google.py` (endpoints are documented inline).
+4. **Creator payouts (Stripe Connect)** — set `STRIPE_CONNECT_*` URLs (reuses `STRIPE_SECRET_KEY`)
+   and `PLATFORM_FEE_BPS`. Creators onboard via `POST /api/creator/onboard`; run a period with
+   `python manage.py compute_payouts --start … --end … --pool-cents …` then
+   `python manage.py run_payouts <period_id>`.
 
 ## Layout
 ```
-backend/   Django project — apps/{accounts,catalog,subscriptions,billing,playback,cms}
+backend/   Django project — apps/{accounts,catalog,subscriptions,billing,playback,cms,payouts}
 web/       Next.js web client (browse, subscribe, DRM player)
 infra/     Dockerfiles
 clients/   native + TV client scaffolds (see each README) — build order in docs/BUILD_ORDER.md

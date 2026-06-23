@@ -10,9 +10,12 @@ class SeasonInline(admin.TabularInline):
 
 @admin.register(Show)
 class ShowAdmin(admin.ModelAdmin):
-    list_display = ("title", "slug", "status", "created_at")
+    list_display = ("title", "slug", "owner", "status", "created_at")
     prepopulated_fields = {"slug": ("title",)}
     list_filter = ("status",)
+    list_select_related = ("owner",)
+    raw_id_fields = ("owner",)
+    search_fields = ("title", "owner__email")
     inlines = [SeasonInline]
 
 

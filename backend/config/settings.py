@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "apps.billing",
     "apps.playback",
     "apps.cms",
+    "apps.payouts",
 ]
 
 MIDDLEWARE = [
@@ -141,6 +142,14 @@ STRIPE_PRICE_MONTHLY = env("STRIPE_PRICE_MONTHLY", "")
 STRIPE_PRICE_ANNUAL = env("STRIPE_PRICE_ANNUAL", "")
 CHECKOUT_SUCCESS_URL = env("CHECKOUT_SUCCESS_URL", "http://localhost:3000/account?ok=1")
 CHECKOUT_CANCEL_URL = env("CHECKOUT_CANCEL_URL", "http://localhost:3000/subscribe?canceled=1")
+
+# ── Creator payouts (Stripe Connect; reuses STRIPE_SECRET_KEY) ──
+# Default platform cut on creator earnings, in basis points (3000 = 30%).
+PLATFORM_FEE_BPS = int(env("PLATFORM_FEE_BPS", "3000"))
+STRIPE_CONNECT_RETURN_URL = env("STRIPE_CONNECT_RETURN_URL",
+                                "http://localhost:3000/creator?onboarded=1")
+STRIPE_CONNECT_REFRESH_URL = env("STRIPE_CONNECT_REFRESH_URL",
+                                 "http://localhost:3000/creator?refresh=1")
 
 CF_ACCOUNT_ID = env("CF_ACCOUNT_ID", "")
 CF_API_TOKEN = env("CF_API_TOKEN", "")
