@@ -26,3 +26,12 @@ input { width:100%; padding:12px; border-radius:8px; border:1px solid var(--line
 .plan { flex:1; min-width:200px; background:var(--card); border:1px solid var(--line);
   border-radius:12px; padding:20px; }
 video { width:100%; border-radius:12px; background:#000; }
+.ledger { width:100%; border-collapse:collapse; margin-top:12px; font-size:14px; }
+.ledger th { text-align:left; color:var(--muted); font-weight:600; padding:10px 12px;
+  border-bottom:1px solid var(--line); }
+.ledger td { padding:10px 12px; border-bottom:1px solid var(--line); }
+.pill { padding:3px 10px; border-radius:999px; font-size:12px; font-weight:700; text-transform:capitalize; }
+.pill-paid { background:#10331c; color:#39d353; }
+.pill-pending { background:#33300f; color:#e3c64a; }
+.pill-failed { background:#3a1414; color:#f0635b; }
+.pill-skipped { background:#222a36; color:var(--muted); }

@@ -35,7 +35,10 @@ class ShowsView(APIView):
             instance = get_object_or_404(Show, id=request.data["id"])
         ser = ShowWriteSerializer(instance, data=request.data, partial=bool(instance))
         ser.is_valid(raise_exception=True)
-        return Response(ShowWriteSerializer(ser.save()).data)
+        # On create, default ownership to the uploader so they earn from it — unless an
+        # explicit owner was supplied (admin assigning on a creator's behalf).
+        extra = {} if (instance or request.data.get("owner")) else {"owner": request.user}
+        return Response(ShowWriteSerializer(ser.save(**extra)).data)
 
 
 class EpisodesView(APIView):

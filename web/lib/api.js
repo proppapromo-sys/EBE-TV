@@ -56,3 +56,9 @@ export const Playback = {
   progress: (episodeId, position_s) =>
     api(`/progress/${episodeId}`, { method: "POST", auth: true, body: { position_s } }),
 };
+
+export const Creator = {
+  account: () => api("/creator/account", { auth: true }),
+  onboard: () => api("/creator/onboard", { method: "POST", auth: true }),
+  earnings: () => api("/creator/earnings", { auth: true }),
+};
