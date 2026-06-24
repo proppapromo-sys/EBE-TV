@@ -11,6 +11,19 @@ never gets a license → can't decrypt.
 client ──/api/play──▶ backend (is_entitled?) ──mint token──▶ client ──play+license──▶ Cloudflare
 ```
 
+## Cloudflare Stream pipeline (`apps/cms` ingest · `apps/playback` egress)
+**Ingest:** the client requests a one-time **direct-upload URL** (`requireSignedURLs:true`) and PUTs
+the raw file straight to Cloudflare — bytes never touch our server. Cloudflare transcodes once to
+CMAF/cbcs (one asset → Widevine + FairPlay + PlayReady). Readiness flips `Video.ready` two ways:
+the **transcode webhook** (`/api/webhooks/cloudflare`, HMAC-verified via `CF_WEBHOOK_SECRET`) or the
+webhook-free **`sync_video_status`** poll (cron / backfill) — belt and suspenders so an upload still
+goes live if a webhook delivery is missed.
+**Egress:** `/api/play` mints a short-lived **RS256 JWT** signed with the Stream signing key
+(`sub`=video uid, `kid`, `exp`≈120s). It rides in the manifest path
+(`…/<jwt>/manifest/video.mpd`), and the **same token authorizes the DRM license request** — so an
+unentitled user gets no token, no license, no plaintext. Keys are accepted as raw PEM or
+Cloudflare's base64 form.
+
 ## Entitlement (`apps/subscriptions/services.py`)
 `is_entitled(user_id)` = "has an `active` subscription whose `current_period_end` is in the
 future". Cached in Redis for 5 min; **every billing change calls `invalidate_entitlement`** so

@@ -63,3 +63,21 @@ class StudioTests(APITestCase):
         Show.objects.create(title="Secret", slug="secret", owner=self.alice, status="pending")
         r = self.client.get("/api/catalog")          # public browse
         self.assertEqual(r.data["shows"], [])
+
+    def test_episode_status_is_owner_scoped(self):
+        show = Show.objects.create(title="Doc", slug="doc", owner=self.alice)
+        season = Season.objects.create(show=show, number=1)
+        video = Video.objects.create(cf_stream_uid="uid", ready=True)
+        ep = Episode.objects.create(season=season, number=1, title="E1", video=video)
+
+        self.client.force_authenticate(self.alice)
+        self.client.post("/api/studio/enable")
+        r = self.client.get(f"/api/studio/episodes/{ep.id}/status")
+        self.assertEqual(r.status_code, 200)
+        self.assertTrue(r.data["ready"])
+
+        # Bob cannot see Alice's episode status.
+        self.client.force_authenticate(self.bob)
+        self.client.post("/api/studio/enable")
+        self.assertEqual(
+            self.client.get(f"/api/studio/episodes/{ep.id}/status").status_code, 404)

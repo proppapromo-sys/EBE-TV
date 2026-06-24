@@ -78,8 +78,11 @@ class PublishView(APIView):
 @permission_classes([AllowAny])
 def cf_transcode_webhook(request):
     """Cloudflare calls this when a video finishes transcoding → flip Video.ready = true.
-    (Configure the webhook + verify its signature in production.)"""
+    Signature-verified when CF_WEBHOOK_SECRET is set (set it + configure the webhook in prod)."""
     import json
+    if not cloudflare.verify_webhook_signature(
+            request.body, request.META.get("HTTP_WEBHOOK_SIGNATURE", "")):
+        return Response({"error": "invalid_signature"}, status=403)
     try:
         body = json.loads(request.body or b"{}")
     except ValueError:

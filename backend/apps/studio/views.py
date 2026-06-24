@@ -99,6 +99,25 @@ class UploadURLView(APIView):
                          "cf_uid": result["uid"], "video_id": str(video.id)})
 
 
+@api_view(["GET"])
+@permission_classes([IsCreator])
+def episode_status(request, episode_id):
+    """Poll an owned episode's transcode readiness, reconciling from Cloudflare when configured.
+    Lets the studio UI show processing → ready without waiting on the webhook."""
+    episode = get_object_or_404(Episode, id=episode_id, season__show__owner=request.user)
+    video = episode.video
+    if not video:
+        return Response({"ok": True, "ready": False, "state": "no_video"})
+    if not video.ready and video.cf_stream_uid and cloudflare.configured():
+        st = cloudflare.get_video_status(video.cf_stream_uid)
+        if st.get("ok") and st.get("ready"):
+            Video.objects.filter(pk=video.pk).update(
+                ready=True, duration_s=st.get("duration_s") or video.duration_s)
+            video.ready = True
+    return Response({"ok": True, "ready": video.ready,
+                     "state": "ready" if video.ready else "processing"})
+
+
 @api_view(["POST"])
 @permission_classes([IsCreator])
 def submit(request):

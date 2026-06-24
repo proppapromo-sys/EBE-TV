@@ -58,6 +58,15 @@ export default function StudioPage() {
     else setMsg("Could not attach episode.");
   }
 
+  async function checkStatus(show) {
+    const eps = (show.seasons?.flatMap((se) => se.episodes) || []).filter((e) => !e.ready);
+    if (eps.length === 0) return;
+    setMsg("Checking transcode status…");
+    await Promise.all(eps.map((e) => Studio.episodeStatus(e.id)));   // reconciles from Cloudflare
+    setMsg("");
+    refresh();
+  }
+
   async function submit(show) {
     setMsg("Submitting for review…");
     const r = await Studio.submit(show.id);
@@ -128,6 +137,11 @@ export default function StudioPage() {
                       <input type="file" accept="video/*" style={{ display: "none" }}
                         onChange={(e) => e.target.files[0] && uploadEpisode(s, e.target.files[0])} />
                     </label>
+                    {eps.some((e) => !e.ready) && (
+                      <button className="btn ghost" onClick={() => checkStatus(s)}>
+                        Check status
+                      </button>
+                    )}
                     {eps.length > 0 && (
                       <button className="btn" onClick={() => submit(s)}>Submit for review</button>
                     )}

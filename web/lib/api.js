@@ -71,6 +71,7 @@ export const Studio = {
     api("/studio/seasons", { method: "POST", auth: true, body: { show: showId, number } }),
   uploadUrl: () => api("/studio/videos/upload-url", { method: "POST", auth: true, body: {} }),
   addEpisode: (ep) => api("/studio/episodes", { method: "POST", auth: true, body: ep }),
+  episodeStatus: (episodeId) => api(`/studio/episodes/${episodeId}/status`, { auth: true }),
   submit: (showId) => api("/studio/submit", { method: "POST", auth: true, body: { show: showId } }),
 };
 

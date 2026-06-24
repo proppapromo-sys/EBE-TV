@@ -66,8 +66,12 @@ docker compose up --build                          # web :3000 · api :8000 · p
   subscribe page, login, continue-watching, **creator studio + payout dashboard**.
 
 ## Wire the real services (when ready)
-1. **Cloudflare Stream** — set `CF_*`. Enable "Require signed URLs" + DRM on videos. Upload via the
-   CMS direct-upload URL; the transcode webhook flips `videos.ready`.
+1. **Cloudflare Stream** — set `CF_ACCOUNT_ID` / `CF_API_TOKEN`, create a signing key (`CF_STREAM_
+   SIGNING_KEY_ID` / `_PEM`, base64 or PEM both accepted), and set `CF_CUSTOMER_SUBDOMAIN`. Uploads
+   go straight to a direct-upload URL (studio or CMS); readiness flips via the transcode webhook at
+   `/api/webhooks/cloudflare` (set `CF_WEBHOOK_SECRET` to verify it) **or** the webhook-free
+   fallback `python manage.py sync_video_status` (run on a cron). Playback then mints short-lived
+   signed tokens → DASH/Widevine + HLS/FairPlay.
 2. **Stripe** — set `STRIPE_*`, create monthly/annual Prices, point the webhook at
    `/api/webhooks/stripe`. Web signups now bill at full margin.
 3. **Apple / Google** — set the IAP envs; finish the `TODO` verification calls in
