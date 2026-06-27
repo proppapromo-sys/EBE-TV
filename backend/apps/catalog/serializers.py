@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Episode, Season, Show
+from .models import Collection, Episode, Season, Show
 
 
 class EpisodeSerializer(serializers.ModelSerializer):
@@ -33,6 +33,19 @@ class ShowCardSerializer(serializers.ModelSerializer):
     class Meta:
         model = Show
         fields = ("id", "title", "slug", "poster_url", "hero_url", "genre")
+
+
+class CollectionSerializer(serializers.ModelSerializer):
+    """A browse row with its ordered, published shows."""
+    items = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Collection
+        fields = ("title", "slug", "kind", "items")
+
+    def get_items(self, obj):
+        shows = [it.show for it in obj.items.all() if it.show.status == "published"]
+        return ShowCardSerializer(shows, many=True).data
 
 
 class ShowDetailSerializer(serializers.ModelSerializer):

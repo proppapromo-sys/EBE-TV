@@ -13,6 +13,8 @@ export default function RootLayout({ children }) {
           <a href="/studio" className="muted">Studio</a>
           <a href="/creator" className="muted">Creators</a>
           <span className="spacer" />
+          <a href="/search" className="muted" aria-label="Search">🔍</a>
+          <a href="/account" className="muted">Account</a>
           <a href="/login" className="btn ghost">Sign in</a>
         </nav>
         {children}

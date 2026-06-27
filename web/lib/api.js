@@ -42,6 +42,8 @@ export const Auth = {
 
 export const Catalog = {
   list: () => raw("/catalog"),
+  home: () => raw("/home"),
+  search: (q) => raw(`/search?q=${encodeURIComponent(q)}`),
   show: (slug) => raw(`/shows/${slug}`),
 };
 
@@ -49,6 +51,7 @@ export const Billing = {
   plans: () => raw("/plans"),
   checkout: (plan_code) =>
     api("/subscribe/stripe", { method: "POST", auth: true, body: { plan_code } }),
+  cancel: () => api("/subscribe/cancel", { method: "POST", auth: true }),
 };
 
 export const Playback = {

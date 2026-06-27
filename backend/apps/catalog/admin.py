@@ -1,6 +1,23 @@
 from django.contrib import admin
 
-from .models import Episode, Season, Show, Video, WatchProgress
+from .models import (Collection, CollectionItem, Episode, Season, Show, Video,
+                     WatchProgress)
+
+
+class CollectionItemInline(admin.TabularInline):
+    model = CollectionItem
+    extra = 1
+    raw_id_fields = ("show",)
+    ordering = ("position",)
+
+
+@admin.register(Collection)
+class CollectionAdmin(admin.ModelAdmin):
+    list_display = ("title", "kind", "position", "published")
+    list_editable = ("position", "published")
+    list_filter = ("kind", "published")
+    prepopulated_fields = {"slug": ("title",)}
+    inlines = [CollectionItemInline]
 
 
 class SeasonInline(admin.TabularInline):

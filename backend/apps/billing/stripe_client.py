@@ -42,6 +42,18 @@ def create_checkout_session(user, plan) -> dict:
     return {"ok": True, "checkout_url": s.url, "session_id": s.id}
 
 
+def cancel_subscription(external_id, at_period_end=True) -> dict:
+    """Cancel a Stripe subscription. Default cancels at period end (keep access until paid-through);
+    the customer.subscription.updated webhook then normalizes cancel_at_period_end back to us."""
+    if not configured():
+        return {"ok": False, "error": "stripe_not_configured"}
+    try:
+        _client().Subscription.modify(external_id, cancel_at_period_end=at_period_end)
+        return {"ok": True}
+    except Exception as e:
+        return {"ok": False, "error": "stripe_error", "detail": str(e)}
+
+
 def _ts(epoch):
     return datetime.fromtimestamp(epoch, tz=tz.utc) if epoch else None
 

@@ -78,3 +78,36 @@ class WatchProgress(models.Model):
 
     class Meta:
         unique_together = ("user", "episode")
+
+
+class Collection(models.Model):
+    """A curated browse row (e.g. "Originals", "Coming Soon") or the hero rail. Editorial —
+    an admin orders both the rows and the shows inside them."""
+    ROW, HERO = "row", "hero"
+    KIND_CHOICES = [(ROW, "row"), (HERO, "hero")]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    title = models.CharField(max_length=120)
+    slug = models.SlugField(unique=True)
+    kind = models.CharField(max_length=8, choices=KIND_CHOICES, default=ROW)
+    position = models.IntegerField(default=0)          # order among rows on the home page
+    published = models.BooleanField(default=True)
+    shows = models.ManyToManyField(Show, through="CollectionItem", related_name="collections")
+
+    class Meta:
+        ordering = ["position", "title"]
+
+    def __str__(self):
+        return f"{self.title} ({self.kind})"
+
+
+class CollectionItem(models.Model):
+    """A show's slot within a collection, with its own ordering."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    collection = models.ForeignKey(Collection, related_name="items", on_delete=models.CASCADE)
+    show = models.ForeignKey(Show, related_name="collection_items", on_delete=models.CASCADE)
+    position = models.IntegerField(default=0)
+
+    class Meta:
+        ordering = ["position"]
+        unique_together = ("collection", "show")
