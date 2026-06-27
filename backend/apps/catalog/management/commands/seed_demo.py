@@ -14,27 +14,27 @@ from apps.subscriptions.models import Plan, Subscription
 
 User = get_user_model()
 
-# A NowThatsTV-style catalog: editorial rows, each with a handful of shows.
+# Original EBE-TV demo catalog — invented placeholder titles + EBE's own editorial rows.
 SHOWS = {
-    "demo-original": ("Demo Original", ["Drama", "Original"]),
-    "next-star": ("Next Star Audition", ["Competition"]),
-    "bad-blood": ("Bad Blood", ["Reality"]),
-    "hit-or-miss": ("Hit or Miss", ["Music"]),
-    "love-both-sides": ("Love on Both Sides", ["Romance"]),
-    "thats-life": ("That's Life", ["Documentary"]),
-    "offset-series": ("Offset Series", ["Drama"]),
-    "punta-canada": ("Punta Canada", ["Reality"]),
-    "deja-vu": ("Deja Vu: The Reunion", ["Reality"]),
-    "young-reckless": ("Young & Reckless", ["Reality"]),
-    "nxt-awards": ("The NXT Awards", ["Event"]),
-    "nxt-showcase": ("The NXT Wave Showcase", ["Event"]),
+    "midnight-bloom": ("Midnight Bloom", ["Drama"]),
+    "crown-city": ("Crown City", ["Reality"]),
+    "the-come-up": ("The Come Up", ["Docuseries"]),
+    "last-call": ("Last Call", ["Reality"]),
+    "paper-chase": ("Paper Chase", ["Drama"]),
+    "off-the-record": ("Off the Record", ["Talk"]),
+    "glow-up": ("Glow Up", ["Reality"]),
+    "block-party": ("Block Party", ["Music"]),
+    "two-truths": ("Two Truths", ["Reality"]),
+    "after-hours": ("After Hours", ["Late Night"]),
+    "heatwave": ("Heatwave", ["Event"]),
+    "spotlight-sessions": ("Spotlight Sessions", ["Showcase"]),
 }
 ROWS = [
-    ("Featured", "featured", "hero", ["demo-original", "next-star", "bad-blood"]),
-    ("Coming Soon", "coming-soon", "row", ["hit-or-miss", "love-both-sides", "thats-life"]),
-    ("Originals", "originals", "row", ["demo-original", "offset-series", "punta-canada"]),
-    ("Sunday Nights", "sunday-nights", "row", ["next-star", "deja-vu", "young-reckless"]),
-    ("Events", "events", "row", ["nxt-awards", "nxt-showcase", "bad-blood"]),
+    ("Tonight on EBE", "tonight", "hero", ["midnight-bloom", "crown-city", "the-come-up"]),
+    ("Fresh Drops", "fresh-drops", "row", ["heatwave", "glow-up", "after-hours"]),
+    ("EBE Originals", "ebe-originals", "row", ["midnight-bloom", "paper-chase", "two-truths"]),
+    ("Binge-Worthy", "binge-worthy", "row", ["crown-city", "last-call", "block-party"]),
+    ("Live & Loud", "live-loud", "row", ["spotlight-sessions", "heatwave", "off-the-record"]),
 ]
 
 

@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Auth, tokens } from "../lib/api";
+import BrandMark from "./BrandMark";
 
 const LINKS = [
   { href: "/", label: "Watch Now", icon: "▶" },
@@ -37,7 +38,7 @@ export default function Nav() {
     <>
       <nav className="nav">
         <button className="iconbtn" aria-label="Menu" onClick={() => setOpen(true)}>☰</button>
-        <a className="brand" href="/">▶ STREAM</a>
+        <a className="brand" href="/"><BrandMark /><span className="wordmark">EBE·TV</span></a>
         <span className="spacer" />
         <a href="/search" className="iconbtn" aria-label="Search">🔍</a>
         {authed
@@ -77,7 +78,7 @@ export default function Nav() {
                   <span style={{ width: 22, textAlign: "center" }}>→</span>Sign in
                 </a>}
 
-            <div className="drawer-foot">EBE-TV · v0.1</div>
+            <div className="drawer-foot">EBE·TV — your network, all access · v0.1</div>
           </aside>
         </>
       )}

@@ -18,8 +18,8 @@ export default function Subscribe() {
 
   return (
     <main className="wrap">
-      <h1>One subscription. Everything.</h1>
-      <p className="muted">All-access to every original. Cancel anytime.</p>
+      <h1>Everything EBE. One pass.</h1>
+      <p className="muted">Every original series and live event on EBE·TV. Cancel anytime.</p>
       <div className="row" style={{ marginTop: 20 }}>
         {plans.map((p) => (
           <div className="plan" key={p.id}>

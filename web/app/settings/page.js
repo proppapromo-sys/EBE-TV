@@ -58,7 +58,7 @@ export default function Settings() {
         <a className="setrow" href="#"><span className="lbl"><span className="ico">🛡</span>Privacy Policy</span><span className="muted">🔗</span></a>
       </div>
 
-      <p className="muted" style={{ marginTop: 16 }}>EBE-TV · v0.1</p>
+      <p className="muted" style={{ marginTop: 16 }}>EBE·TV · v0.1</p>
     </main>
   );
 }

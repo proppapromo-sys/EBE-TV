@@ -1,13 +1,19 @@
-/* Brighter-dark palette: lifted slate surfaces, higher contrast, vivid red accent. */
-:root { --bg:#161922; --bg2:#1c2130; --card:#222a3a; --line:#374056;
-  --fg:#f3f6fb; --muted:#a3b0c4; --accent:#ff2742; --accent2:#ff5e74; }
+/* EBE·TV identity — brighter slate base with a signature violet→gold accent (its own look,
+   deliberately off the red-on-black streaming cliché). */
+:root { --bg:#12141c; --bg2:#191c27; --card:#202433; --line:#323b50;
+  --fg:#f4f6fb; --muted:#9aa6bd; --accent:#7a5cff; --accent2:#ffc857; }
 * { box-sizing: border-box; }
 body { margin:0; background:var(--bg); color:var(--fg);
   font:16px/1.55 -apple-system,Segoe UI,Roboto,Arial,sans-serif; }
 a { color:inherit; text-decoration:none; }
 .nav { display:flex; align-items:center; gap:16px; padding:14px 20px;
   border-bottom:1px solid var(--line); background:var(--bg2); position:sticky; top:0; z-index:30; }
-.brand { font-weight:800; color:var(--accent); font-size:20px; letter-spacing:.5px; }
+.brand { display:flex; align-items:center; gap:9px; font-weight:800; font-size:20px;
+  letter-spacing:.3px; }
+.wordmark { background:linear-gradient(92deg,var(--accent) 10%,var(--accent2));
+  -webkit-background-clip:text; background-clip:text; color:transparent; }
+.brandmark { width:30px; height:30px; flex:0 0 auto; display:block; }
+.tagline { color:var(--muted); font-size:13px; letter-spacing:.04em; }
 .spacer { flex:1; }
 .btn { background:var(--accent); color:#fff; border:0; border-radius:8px; padding:10px 16px;
   font-weight:700; cursor:pointer; }
