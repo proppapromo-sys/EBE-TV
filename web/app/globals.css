@@ -1,9 +1,12 @@
-:root { --bg:#0b0d12; --card:#161b24; --line:#242c39; --fg:#e8edf4; --muted:#8b97a8; --accent:#e50914; }
+/* Brighter-dark palette: lifted slate surfaces, higher contrast, vivid red accent. */
+:root { --bg:#161922; --bg2:#1c2130; --card:#222a3a; --line:#374056;
+  --fg:#f3f6fb; --muted:#a3b0c4; --accent:#ff2742; --accent2:#ff5e74; }
 * { box-sizing: border-box; }
 body { margin:0; background:var(--bg); color:var(--fg);
   font:16px/1.55 -apple-system,Segoe UI,Roboto,Arial,sans-serif; }
 a { color:inherit; text-decoration:none; }
-.nav { display:flex; align-items:center; gap:16px; padding:14px 24px; border-bottom:1px solid var(--line); }
+.nav { display:flex; align-items:center; gap:16px; padding:14px 20px;
+  border-bottom:1px solid var(--line); background:var(--bg2); position:sticky; top:0; z-index:30; }
 .brand { font-weight:800; color:var(--accent); font-size:20px; letter-spacing:.5px; }
 .spacer { flex:1; }
 .btn { background:var(--accent); color:#fff; border:0; border-radius:8px; padding:10px 16px;
@@ -62,3 +65,39 @@ video { width:100%; border-radius:12px; background:#000; }
 .subrow { display:flex; justify-content:space-between; align-items:center;
   padding:10px 0; border-bottom:1px solid var(--line); }
 .subrow:last-of-type { border-bottom:0; }
+
+/* ── Hamburger side-drawer ── */
+.iconbtn { background:transparent; border:0; color:var(--fg); font-size:22px; cursor:pointer;
+  line-height:1; padding:4px 8px; border-radius:8px; }
+.iconbtn:hover { background:#ffffff14; }
+.drawer-overlay { position:fixed; inset:0; background:#0009; z-index:40; }
+.drawer { position:fixed; top:0; left:0; bottom:0; width:300px; max-width:84vw; z-index:50;
+  background:var(--bg2); border-right:1px solid var(--line); padding:18px;
+  display:flex; flex-direction:column; gap:4px; animation:slidein .18s ease; }
+@keyframes slidein { from { transform:translateX(-100%); } to { transform:translateX(0); } }
+.drawer-acct { display:flex; align-items:center; gap:12px; padding:10px 6px 18px;
+  border-bottom:1px solid var(--line); margin-bottom:10px; }
+.avatar { width:44px; height:44px; border-radius:50%; background:var(--card);
+  display:grid; place-items:center; color:var(--accent); font-size:20px; flex:0 0 auto; }
+.drawer-link { display:flex; align-items:center; gap:12px; padding:13px 12px; border-radius:10px;
+  font-weight:600; color:var(--fg); }
+.drawer-link:hover { background:#ffffff12; }
+.drawer-link.active { background:var(--accent); color:#fff; }
+.drawer-foot { margin-top:auto; color:var(--muted); font-size:13px; padding:10px 12px; }
+
+/* ── Settings ── */
+.setgroup { background:var(--card); border:1px solid var(--line); border-radius:14px;
+  margin-top:16px; overflow:hidden; }
+.setrow { display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:16px; border-bottom:1px solid var(--line); }
+.setrow:last-child { border-bottom:0; }
+.setrow .lbl { display:flex; align-items:center; gap:12px; font-weight:600; }
+.setrow .ico { color:var(--accent); font-size:18px; }
+.toggle { width:50px; height:28px; border-radius:999px; border:0; cursor:pointer;
+  background:#46505f; position:relative; transition:background .15s; }
+.toggle.on { background:#39d353; }
+.toggle .knob { position:absolute; top:3px; left:3px; width:22px; height:22px; border-radius:50%;
+  background:#fff; transition:left .15s; }
+.toggle.on .knob { left:25px; }
+select.pref { background:var(--bg); color:var(--fg); border:1px solid var(--line);
+  border-radius:8px; padding:8px 10px; font-size:14px; }

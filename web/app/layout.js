@@ -1,22 +1,13 @@
 import "./globals.css";
+import Nav from "../components/Nav";
 
-export const metadata = { title: "Streaming", description: "Watch original shows" };
+export const metadata = { title: "EBE-TV", description: "Watch original shows" };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <nav className="nav">
-          <a className="brand" href="/">▶ STREAM</a>
-          <a href="/" className="muted">Browse</a>
-          <a href="/subscribe" className="muted">Subscribe</a>
-          <a href="/studio" className="muted">Studio</a>
-          <a href="/creator" className="muted">Creators</a>
-          <span className="spacer" />
-          <a href="/search" className="muted" aria-label="Search">🔍</a>
-          <a href="/account" className="muted">Account</a>
-          <a href="/login" className="btn ghost">Sign in</a>
-        </nav>
+        <Nav />
         {children}
       </body>
     </html>

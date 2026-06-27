@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { Playback, tokens } from "../../../lib/api";
+import { getPrefs, maxHeightFor } from "../../../lib/prefs";
 
 export default function Watch() {
   const { id } = useParams();
@@ -19,14 +20,19 @@ export default function Watch() {
       if (!r.ok) { setMsg(r.data.detail || r.data.error || "Cannot play this episode."); return; }
 
       setMsg("");
+      const prefs = getPrefs();
       // Shaka Player handles DASH + Widevine/PlayReady; Safari falls back to native HLS/FairPlay.
       const shaka = (await import("shaka-player/dist/shaka-player.compiled.js")).default;
       shaka.polyfill.installAll();
       const video = videoRef.current;
+      video.autoplay = prefs.autoplay;                   // honor the Auto-play setting
       if (video.canPlayType("application/vnd.apple.mpegurl") && r.data.manifest.hls) {
         video.src = r.data.manifest.hls;                 // Safari / FairPlay
       } else if (shaka.Player.isBrowserSupported()) {
         player = new shaka.Player(video);
+        // Cap resolution per the quality / data-saver setting (null = unrestricted).
+        const cap = prefs.dataSaver ? 480 : maxHeightFor(prefs.quality);
+        if (cap) player.configure({ restrictions: { maxHeight: cap } });
         await player.load(r.data.manifest.dash);         // Chrome/Edge/Firefox / Widevine
       } else {
         setMsg("This browser can't play DRM-protected video.");
@@ -46,7 +52,7 @@ export default function Watch() {
 
   return (
     <main className="wrap">
-      <video ref={videoRef} controls autoPlay />
+      <video ref={videoRef} controls playsInline />
       {msg && <p className="muted">{msg}</p>}
     </main>
   );
