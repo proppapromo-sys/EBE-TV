@@ -49,6 +49,22 @@ def copy_from_url(url, name="", max_seconds=14400) -> dict:
     return {"ok": True, "uid": data["result"]["uid"]}
 
 
+def add_caption(uid, language, vtt_url) -> dict:
+    """Attach a subtitle track to a video from a public .vtt URL; Cloudflare embeds it in the
+    manifest so the player can offer it. Graceful when unconfigured."""
+    if not configured():
+        return {"ok": False, "error": "cloudflare_not_configured"}
+    r = requests.put(
+        f"{API}/accounts/{settings.CF_ACCOUNT_ID}/stream/{uid}/captions/{language}",
+        headers={"Authorization": f"Bearer {settings.CF_API_TOKEN}"},
+        json={"url": vtt_url}, timeout=20,
+    )
+    data = r.json()
+    if not data.get("success"):
+        return {"ok": False, "error": "cloudflare_error", "detail": data.get("errors")}
+    return {"ok": True}
+
+
 def get_video_status(uid) -> dict:
     """Poll a video's transcode state — the webhook-free fallback for flipping `ready`.
     Returns {ok, ready, duration_s, state}."""

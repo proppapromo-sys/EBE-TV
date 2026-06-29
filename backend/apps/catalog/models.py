@@ -22,6 +22,23 @@ class Video(models.Model):
         return self.cf_stream_uid or str(self.id)
 
 
+class Caption(models.Model):
+    """A subtitle/caption track for a video. Cloudflare stores the VTT and embeds it in the
+    manifest; this row is the metadata the player's CC menu lists."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    video = models.ForeignKey(Video, related_name="captions", on_delete=models.CASCADE)
+    language = models.CharField(max_length=12)          # BCP-47, e.g. "en", "es-419"
+    label = models.CharField(max_length=60, blank=True)  # display name, e.g. "English"
+    ready = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = ("video", "language")
+        ordering = ["language"]
+
+    def __str__(self):
+        return f"{self.language} ({self.video})"
+
+
 class Show(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     # The creator who owns this show and earns from it. Null = platform-owned original

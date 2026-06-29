@@ -11,7 +11,8 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.utils.text import slugify
 
-from apps.catalog.models import (Collection, CollectionItem, Episode, Season, Show, Video)
+from apps.catalog.models import (Caption, Collection, CollectionItem, Episode, Season,
+                                 Show, Video)
 from . import cloudflare
 
 User = get_user_model()
@@ -20,7 +21,7 @@ User = get_user_model()
 def _new_summary():
     return {"shows_created": 0, "shows_updated": 0, "seasons_created": 0,
             "episodes_created": 0, "episodes_updated": 0, "videos_queued": 0,
-            "videos_skipped": 0, "errors": []}
+            "videos_skipped": 0, "captions_added": 0, "errors": []}
 
 
 def ingest_manifest(data, *, pull_video=True, default_status="draft") -> dict:
@@ -90,30 +91,40 @@ def _ingest_episode(season, ep, pull_video, default_status, summary):
         episode.save()
         summary["episodes_updated"] += 1
 
-    # Don't touch a video that's already attached (idempotent re-runs won't re-pull).
-    if episode.video and episode.video.cf_stream_uid:
-        return
+    # Attach a video unless one is already present (idempotent re-runs won't re-pull).
+    video = episode.video if (episode.video and episode.video.cf_stream_uid) else None
+    if not video:
+        uid = ep.get("cf_uid")
+        source_url = ep.get("source_url")
+        if not uid and source_url and pull_video:
+            res = cloudflare.copy_from_url(source_url, name=episode.title,
+                                           max_seconds=ep.get("max_seconds", 14400))
+            if res.get("ok"):
+                uid = res["uid"]
+            else:
+                summary["videos_skipped"] += 1        # e.g. Cloudflare not configured
+        elif source_url and not pull_video:
+            summary["videos_skipped"] += 1
+        if uid:
+            video = Video.objects.create(cf_stream_uid=uid, ready=bool(ep.get("ready", False)),
+                                         duration_s=ep.get("duration_s", 0))
+            episode.video = video
+            episode.save(update_fields=["video"])
+            summary["videos_queued"] += 1
 
-    uid = ep.get("cf_uid")
-    source_url = ep.get("source_url")
-    if not uid and source_url and pull_video:
-        res = cloudflare.copy_from_url(source_url, name=episode.title,
-                                       max_seconds=ep.get("max_seconds", 14400))
-        if res.get("ok"):
-            uid = res["uid"]
-        else:
-            summary["videos_skipped"] += 1            # e.g. Cloudflare not configured
-            return
-    elif source_url and not pull_video:
-        summary["videos_skipped"] += 1
-        return
-
-    if uid:
-        video = Video.objects.create(cf_stream_uid=uid, ready=bool(ep.get("ready", False)),
-                                     duration_s=ep.get("duration_s", 0))
-        episode.video = video
-        episode.save(update_fields=["video"])
-        summary["videos_queued"] += 1
+    # Captions (declared per episode; optionally pushed to Cloudflare from a .vtt URL).
+    if video:
+        for cap in ep.get("captions", []):
+            lang = cap.get("language")
+            if not lang:
+                continue
+            _, made = Caption.objects.get_or_create(
+                video=video, language=lang,
+                defaults={"label": cap.get("label", ""), "ready": cap.get("ready", True)})
+            if made:
+                summary["captions_added"] += 1
+            if cap.get("vtt_url") and pull_video:
+                cloudflare.add_caption(video.cf_stream_uid, lang, cap["vtt_url"])
 
 
 # ── CSV (flat, one row per episode) → manifest ──────────────────────────────────────────────

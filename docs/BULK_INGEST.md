@@ -46,7 +46,9 @@ Videos are only attached if the episode doesn't already have one, so re-runs nev
           "episodes": [
             { "number": 1, "title": "Pilot", "duration_s": 2400,
               "source_url": "https://cdn.ebe.tv/the-vault/s1e1.mp4",
-              "thumbnail_url": "https://cdn.ebe.tv/the-vault/s1e1.jpg" },
+              "thumbnail_url": "https://cdn.ebe.tv/the-vault/s1e1.jpg",
+              "captions": [{ "language": "en", "label": "English",
+                             "vtt_url": "https://cdn.ebe.tv/the-vault/s1e1.en.vtt" }] },
             { "number": 2, "title": "The Job", "cf_uid": "existing-stream-uid" }
           ]
         }
@@ -58,7 +60,8 @@ Videos are only attached if the episode doesn't already have one, so re-runs nev
 
 Field notes: `status` defaults to `draft` (use `--publish` or set `"status": "published"`);
 `owner_email` links a creator so payouts attribute to them; `collections` lists row slugs to add
-the show to.
+the show to; each episode may declare `captions` (a `vtt_url` is pushed to Cloudflare, which
+embeds it in the manifest so the player's CC menu can offer it).
 
 ## CSV (flat — one row per episode)
 Columns (header row required):

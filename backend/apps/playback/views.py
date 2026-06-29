@@ -32,10 +32,13 @@ class PlayView(APIView):
         progress = (WatchProgress.objects
                     .filter(user=request.user, episode=episode)
                     .values_list("position_s", flat=True).first())
+        captions = [{"language": c.language, "label": c.label or c.language.upper()}
+                    for c in video.captions.filter(ready=True)]
         return Response({
             "type": "dash",
             "playback_token": token,
             "manifest": cloudflare.manifests(token),
+            "captions": captions,
             "expires_in": settings.PLAYBACK_TOKEN_TTL,
             "resume_position_s": progress or 0,
         })

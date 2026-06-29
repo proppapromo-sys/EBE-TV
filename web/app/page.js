@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Catalog } from "../lib/api";
+import Poster from "../components/Poster";
 
 function Row({ title, items }) {
   if (!items?.length) return null;
@@ -12,7 +13,7 @@ function Row({ title, items }) {
       <div className="scroller">
         {items.map((s) => (
           <a className="poster" key={s.id + title} href={`/show/${s.slug}`}>
-            <img src={s.poster_url} alt={s.title} loading="lazy" />
+            <div className="posterbox"><Poster src={s.poster_url} title={s.title} /></div>
             <div className="postert">{s.title}</div>
           </a>
         ))}
@@ -49,7 +50,8 @@ export default function Browse() {
 
       {feature && (
         <a className="herobig" href={`/show/${feature.slug}`}>
-          <img src={feature.hero_url || feature.poster_url} alt={feature.title} />
+          <img src={feature.hero_url || feature.poster_url} alt=""
+               onError={(e) => { e.currentTarget.style.visibility = "hidden"; }} />
           <div className="herograd" />
           <div className="herometa">
             <h1>{feature.title}</h1>

@@ -44,6 +44,26 @@ class HomeViewTests(APITestCase):
         self.assertEqual(titles, ["Originals", "Events"])      # position 1 before 5
 
 
+class PosterFallbackTests(APITestCase):
+    def test_card_poster_falls_back_to_hero_then_episode_thumb(self):
+        from apps.catalog.models import Episode, Season
+        # No poster, but a hero → uses hero.
+        h = Show.objects.create(title="H", slug="h", status="published",
+                                hero_url="https://img/hero.jpg")
+        # No poster, no hero, but a published episode with a thumbnail → uses that.
+        t = Show.objects.create(title="T", slug="t", status="published")
+        season = Season.objects.create(show=t, number=1)
+        Episode.objects.create(season=season, number=1, title="E1", status="published",
+                               thumbnail_url="https://img/ep.jpg")
+        col = Collection.objects.create(title="Row", slug="row", position=0)
+        CollectionItem.objects.create(collection=col, show=h, position=0)
+        CollectionItem.objects.create(collection=col, show=t, position=1)
+
+        items = {i["slug"]: i for i in self.client.get("/api/home").data["rows"][0]["items"]}
+        self.assertEqual(items["h"]["poster_url"], "https://img/hero.jpg")
+        self.assertEqual(items["t"]["poster_url"], "https://img/ep.jpg")
+
+
 class SearchViewTests(APITestCase):
     def setUp(self):
         _show("cabaret", "Joseline Cabaret")

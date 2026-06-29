@@ -29,10 +29,23 @@ class SeasonSerializer(serializers.ModelSerializer):
         return EpisodeSerializer(qs, many=True).data
 
 
+def _first_episode_thumb(show):
+    ep = (Episode.objects.filter(season__show=show, status="published")
+          .exclude(thumbnail_url="").order_by("season__number", "number").first())
+    return ep.thumbnail_url if ep else ""
+
+
 class ShowCardSerializer(serializers.ModelSerializer):
+    # Never blank: fall back poster → hero → an episode thumbnail (the web renders a branded
+    # placeholder if all are empty).
+    poster_url = serializers.SerializerMethodField()
+
     class Meta:
         model = Show
         fields = ("id", "title", "slug", "poster_url", "hero_url", "genre")
+
+    def get_poster_url(self, obj):
+        return obj.poster_url or obj.hero_url or _first_episode_thumb(obj)
 
 
 class CollectionSerializer(serializers.ModelSerializer):

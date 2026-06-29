@@ -51,6 +51,16 @@ class IngestManifestTests(TestCase):
         # Video not re-attached on re-run.
         self.assertEqual(s2["videos_queued"], 0)
 
+    def test_captions_declared_on_episode(self):
+        from apps.catalog.models import Caption
+        data = {"shows": [{"slug": "x", "title": "X", "seasons": [{"number": 1, "episodes": [
+            {"number": 1, "title": "E1", "cf_uid": "u1",
+             "captions": [{"language": "en", "label": "English"},
+                          {"language": "es", "label": "Español"}]}]}]}]}
+        s = ingest_manifest(data)
+        self.assertEqual(s["captions_added"], 2)
+        self.assertEqual(Caption.objects.filter(video__cf_stream_uid="u1").count(), 2)
+
     def test_owner_email_resolves(self):
         creator = User.objects.create_user("creator@ebe.tv", "pw12345678")
         data = {"shows": [{"slug": "mine", "title": "Mine", "owner_email": "creator@ebe.tv"}]}

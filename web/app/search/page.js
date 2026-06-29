@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Catalog } from "../../lib/api";
+import Poster from "../../components/Poster";
 
 export default function Search() {
   const [q, setQ] = useState("");
@@ -29,7 +30,7 @@ export default function Search() {
       <div className="grid" style={{ marginTop: 20 }}>
         {results.map((s) => (
           <a className="card" key={s.id} href={`/show/${s.slug}`}>
-            <img src={s.poster_url} alt={s.title} loading="lazy" />
+            <div className="cardmedia"><Poster src={s.poster_url} title={s.title} /></div>
             <div className="t">{s.title}</div>
           </a>
         ))}
