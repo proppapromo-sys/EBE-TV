@@ -8,7 +8,24 @@ from rest_framework.views import APIView
 
 from apps.catalog.models import Episode, Show, Video
 from . import cloudflare
+from .ingest import ingest_manifest
 from .serializers import EpisodeWriteSerializer, ShowWriteSerializer
+
+
+class BulkIngestView(APIView):
+    """Staff posts a manifest ({shows:[…], collections:[…]}) to load a library in one call."""
+    permission_classes = [IsAdminUser]
+
+    def post(self, request):
+        data = request.data if isinstance(request.data, dict) else {}
+        if not data.get("shows"):
+            return Response({"ok": False, "error": "no_shows",
+                             "detail": "body must be a manifest with a 'shows' array"}, status=400)
+        summary = ingest_manifest(
+            data,
+            pull_video=data.get("pull_video", True),
+            default_status="published" if data.get("publish") else "draft")
+        return Response({"ok": True, **summary})
 
 
 class UploadURLView(APIView):

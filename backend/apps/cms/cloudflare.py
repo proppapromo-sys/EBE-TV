@@ -31,6 +31,24 @@ def create_direct_upload(max_seconds=7200) -> dict:
     return {"ok": True, "uploadURL": res["uploadURL"], "uid": res["uid"]}
 
 
+def copy_from_url(url, name="", max_seconds=14400) -> dict:
+    """Bulk ingest's workhorse: tell Cloudflare to PULL a video from a public URL and transcode it,
+    so a library is loaded by pointing at existing files instead of hand-uploading each one."""
+    if not configured():
+        return {"ok": False, "error": "cloudflare_not_configured"}
+    r = requests.post(
+        f"{API}/accounts/{settings.CF_ACCOUNT_ID}/stream/copy",
+        headers={"Authorization": f"Bearer {settings.CF_API_TOKEN}"},
+        json={"url": url, "meta": {"name": name}, "requireSignedURLs": True,
+              "maxDurationSeconds": max_seconds},
+        timeout=30,
+    )
+    data = r.json()
+    if not data.get("success"):
+        return {"ok": False, "error": "cloudflare_error", "detail": data.get("errors")}
+    return {"ok": True, "uid": data["result"]["uid"]}
+
+
 def get_video_status(uid) -> dict:
     """Poll a video's transcode state — the webhook-free fallback for flipping `ready`.
     Returns {ok, ready, duration_s, state}."""
