@@ -67,6 +67,12 @@ export default function Nav() {
                 <span style={{ width: 22, textAlign: "center" }}>{l.icon}</span>{l.label}
               </a>
             ))}
+            {me?.is_staff && (
+              <a href="/moderate" onClick={() => setOpen(false)}
+                 className={`drawer-link${path === "/moderate" ? " active" : ""}`}>
+                <span style={{ width: 22, textAlign: "center" }}>🛡</span>Moderation
+              </a>
+            )}
 
             {authed
               ? <button className="drawer-link" onClick={signOut}

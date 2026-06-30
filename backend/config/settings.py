@@ -137,6 +137,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # ── Integration config (all optional; endpoints report "not configured" when missing) ──
 ENTITLEMENT_CACHE_TTL = int(env("ENTITLEMENT_CACHE_TTL", "300"))
 
+# Transactional email (Resend) + where the web client lives (for links in emails).
+RESEND_API_KEY = env("RESEND_API_KEY", "")
+EMAIL_FROM = env("EMAIL_FROM", "EBE·TV <noreply@ebe.tv>")
+FRONTEND_BASE_URL = env("FRONTEND_BASE_URL", "http://localhost:3000")
+
 STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY", "")
 STRIPE_WEBHOOK_SECRET = env("STRIPE_WEBHOOK_SECRET", "")
 STRIPE_PRICE_MONTHLY = env("STRIPE_PRICE_MONTHLY", "")

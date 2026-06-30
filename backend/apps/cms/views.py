@@ -12,6 +12,40 @@ from .ingest import ingest_manifest
 from .serializers import EpisodeWriteSerializer, ShowWriteSerializer
 
 
+class ModerationView(APIView):
+    """Staff review queue: list submitted (pending) shows; approve (publish) or reject (→ draft)."""
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        shows = (Show.objects.filter(status="pending")
+                 .select_related("owner").order_by("created_at"))
+        out = [{
+            "id": str(s.id), "title": s.title, "slug": s.slug,
+            "owner_email": s.owner.email if s.owner else None,
+            "episodes": Episode.objects.filter(season__show=s).count(),
+            "ready_episodes": Episode.objects.filter(season__show=s, video__ready=True).count(),
+        } for s in shows]
+        return Response({"pending": out})
+
+    def post(self, request):
+        show = get_object_or_404(Show, id=request.data.get("id"))
+        action = request.data.get("action")
+        if action == "approve":
+            show.status = "published"
+            show.save(update_fields=["status"])
+            # Publish episodes that have a ready video so the show is actually watchable.
+            for ep in Episode.objects.filter(season__show=show, video__ready=True):
+                ep.status = "published"
+                ep.published_at = ep.published_at or timezone.now()
+                ep.save(update_fields=["status", "published_at"])
+        elif action == "reject":
+            show.status = "draft"
+            show.save(update_fields=["status"])
+        else:
+            return Response({"error": "bad_action"}, status=400)
+        return Response({"ok": True, "id": str(show.id), "status": show.status})
+
+
 class BulkIngestView(APIView):
     """Staff posts a manifest ({shows:[…], collections:[…]}) to load a library in one call."""
     permission_classes = [IsAdminUser]

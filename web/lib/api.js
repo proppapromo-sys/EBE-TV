@@ -37,13 +37,17 @@ export const Auth = {
   login: (email, password) =>
     raw("/auth/login", { method: "POST", body: { email, password } }),
   me: () => api("/me", { auth: true }),
+  requestReset: (email) => raw("/auth/password/reset", { method: "POST", body: { email } }),
+  confirmReset: (uid, token, password) =>
+    raw("/auth/password/reset/confirm", { method: "POST", body: { uid, token, password } }),
   logout() { tokens.clear(); },
 };
 
 export const Catalog = {
   list: () => raw("/catalog"),
-  home: () => raw("/home"),
-  search: (q) => raw(`/search?q=${encodeURIComponent(q)}`),
+  home: () => api("/home", { auth: true }),   // auth'd → personalized rows (Continue Watching)
+  search: (q, genre = "") =>
+    raw(`/search?q=${encodeURIComponent(q)}&genre=${encodeURIComponent(genre)}`),
   show: (slug) => raw(`/shows/${slug}`),
 };
 
@@ -64,6 +68,12 @@ export const Creator = {
   account: () => api("/creator/account", { auth: true }),
   onboard: () => api("/creator/onboard", { method: "POST", auth: true }),
   earnings: () => api("/creator/earnings", { auth: true }),
+};
+
+export const Admin = {
+  moderationQueue: () => api("/cms/moderation", { auth: true }),
+  moderate: (id, action) =>
+    api("/cms/moderation", { method: "POST", auth: true, body: { id, action } }),
 };
 
 export const Studio = {

@@ -33,6 +33,7 @@ export default function Login() {
            onClick={() => setMode(mode === "login" ? "register" : "login")}>
           {mode === "login" ? "Need an account? Register" : "Have an account? Sign in"}
         </p>
+        {mode === "login" && <p className="muted"><a href="/forgot">Forgot password?</a></p>}
         <p className="muted">Demo: demo@demo.test / demopass123</p>
       </div>
     </main>

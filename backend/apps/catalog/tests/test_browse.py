@@ -1,7 +1,10 @@
 """Curated home rows (hero + ordered rows, empty/unpublished excluded) and public search."""
+from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase
 
 from apps.catalog.models import Collection, CollectionItem, Show
+
+User = get_user_model()
 
 
 def _show(slug, title="S", status="published"):
@@ -32,16 +35,18 @@ class HomeViewTests(APITestCase):
         r = self.client.get("/api/home")
         self.assertEqual(r.status_code, 200)
         self.assertEqual([h["slug"] for h in r.data["hero"]], ["a"])
-        # Only the non-empty, published row shows; draft show filtered out of it.
-        self.assertEqual([row["title"] for row in r.data["rows"]], ["Originals"])
-        self.assertEqual([i["slug"] for i in r.data["rows"][0]["items"]], ["b"])
+        # Only the non-empty, published curated row shows; draft show filtered out of it.
+        curated = [row for row in r.data["rows"] if row["kind"] == "row"]
+        self.assertEqual([row["title"] for row in curated], ["Originals"])
+        self.assertEqual([i["slug"] for i in curated[0]["items"]], ["b"])
 
     def test_rows_are_ordered_by_position(self):
         Collection.objects.create(title="Events", slug="events", position=5)
         ev = Collection.objects.get(slug="events")
         CollectionItem.objects.create(collection=ev, show=self.a, position=0)
-        titles = [row["title"] for row in self.client.get("/api/home").data["rows"]]
-        self.assertEqual(titles, ["Originals", "Events"])      # position 1 before 5
+        curated = [row["title"] for row in self.client.get("/api/home").data["rows"]
+                   if row["kind"] == "row"]
+        self.assertEqual(curated, ["Originals", "Events"])     # position 1 before 5
 
 
 class PosterFallbackTests(APITestCase):
@@ -64,10 +69,36 @@ class PosterFallbackTests(APITestCase):
         self.assertEqual(items["t"]["poster_url"], "https://img/ep.jpg")
 
 
+class AutoRowsTests(APITestCase):
+    def test_new_on_ebe_row_appears(self):
+        a = _show("a", "Alpha")
+        col = Collection.objects.create(title="Row", slug="row", position=0)
+        CollectionItem.objects.create(collection=col, show=a, position=0)
+        titles = [r["title"] for r in self.client.get("/api/home").data["rows"]]
+        self.assertIn("New on EBE", titles)
+
+    def test_continue_watching_only_for_authed_user_with_progress(self):
+        from apps.catalog.models import Episode, Season, WatchProgress
+        user = User.objects.create_user("w@ebe.tv", "pw12345678")
+        show = _show("z", "Zeta")
+        season = Season.objects.create(show=show, number=1)
+        ep = Episode.objects.create(season=season, number=1, title="E1", status="published")
+        WatchProgress.objects.create(user=user, episode=ep, position_s=120)
+        # Anonymous: no Continue Watching.
+        self.assertNotIn("Continue Watching",
+                         [r["title"] for r in self.client.get("/api/home").data["rows"]])
+        # Authed with progress: present.
+        self.client.force_authenticate(user)
+        self.assertIn("Continue Watching",
+                      [r["title"] for r in self.client.get("/api/home").data["rows"]])
+
+
 class SearchViewTests(APITestCase):
     def setUp(self):
-        _show("cabaret", "Joseline Cabaret")
-        _show("ball", "NowThatsBall")
+        s = _show("cabaret", "Joseline Cabaret")
+        s.genre = ["Reality"]; s.save()
+        d = _show("drama1", "City Drama")
+        d.genre = ["Drama"]; d.save()
         _show("secret", "Cabaret Secret", status="draft")     # unpublished
 
     def test_search_matches_published_only(self):
@@ -76,6 +107,11 @@ class SearchViewTests(APITestCase):
         slugs = {x["slug"] for x in r.data["results"]}
         self.assertEqual(slugs, {"cabaret"})                   # draft excluded
 
-    def test_empty_query_returns_no_results(self):
+    def test_empty_query_returns_facets_no_results(self):
         r = self.client.get("/api/search", {"q": "   "})
         self.assertEqual(r.data["results"], [])
+        self.assertEqual(set(r.data["genres"]), {"Reality", "Drama"})
+
+    def test_genre_filter(self):
+        r = self.client.get("/api/search", {"genre": "Drama"})
+        self.assertEqual({x["slug"] for x in r.data["results"]}, {"drama1"})

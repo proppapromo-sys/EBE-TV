@@ -53,9 +53,9 @@ export default function Settings() {
       </div>
 
       <div className="setgroup">
-        <a className="setrow" href="#"><span className="lbl"><span className="ico">✉</span>Feedback</span><span className="muted">🔗</span></a>
-        <a className="setrow" href="#"><span className="lbl"><span className="ico">📄</span>Terms of Use</span><span className="muted">🔗</span></a>
-        <a className="setrow" href="#"><span className="lbl"><span className="ico">🛡</span>Privacy Policy</span><span className="muted">🔗</span></a>
+        <a className="setrow" href="mailto:support@ebe.tv"><span className="lbl"><span className="ico">✉</span>Feedback</span><span className="muted">🔗</span></a>
+        <a className="setrow" href="/terms"><span className="lbl"><span className="ico">📄</span>Terms of Use</span><span className="muted">›</span></a>
+        <a className="setrow" href="/privacy"><span className="lbl"><span className="ico">🛡</span>Privacy Policy</span><span className="muted">›</span></a>
       </div>
 
       <p className="muted" style={{ marginTop: 16 }}>EBE·TV · v0.1</p>
